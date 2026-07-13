@@ -79,6 +79,10 @@ try {
 
     $_SESSION['plan_status'] = 'success';
     $_SESSION['plan_message'] = 'Votre demande de planification de visite a bien été enregistrée. Notre équipe vous répondra par e-mail dans un délai de 24 heures avec une proposition.';
+    // Variables pour le modal de succès
+    $_SESSION['visit_success'] = true;
+    $_SESSION['visit_email'] = $email_client;
+    $_SESSION['visit_place_id'] = $lieu_id;
 
 } catch (Exception $e) {
     $_SESSION['plan_status'] = 'error';

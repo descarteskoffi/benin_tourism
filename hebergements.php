@@ -19,12 +19,16 @@ if ($hebergements === null) {
     }
 }
 
-// Récupération des messages de statut (succès / erreur) de la session
-$status = isset($_SESSION['booking_status']) ? $_SESSION['booking_status'] : null;
-$message = isset($_SESSION['booking_message']) ? $_SESSION['booking_message'] : null;
+// Variables pour les modals
+$booking_success = isset($_SESSION['hotel_booking_success']) ? $_SESSION['hotel_booking_success'] : false;
+$booking_email = isset($_SESSION['hotel_booking_email']) ? $_SESSION['hotel_booking_email'] : '';
+$booking_hotel_name = isset($_SESSION['hotel_booking_name']) ? $_SESSION['hotel_booking_name'] : '';
+$booking_error = isset($_SESSION['booking_status']) && $_SESSION['booking_status'] === 'error';
+$booking_error_msg = isset($_SESSION['booking_message']) ? $_SESSION['booking_message'] : '';
 
 // Nettoyage de la session après lecture
 unset($_SESSION['booking_status'], $_SESSION['booking_message']);
+unset($_SESSION['hotel_booking_success'], $_SESSION['hotel_booking_email'], $_SESSION['hotel_booking_name']);
 
 require_once 'includes/header.php';
 ?>
@@ -40,19 +44,6 @@ require_once 'includes/header.php';
 <!-- Section Hébergements et Formulaire -->
 <section class="section-padding">
     <div class="container">
-        
-        <!-- Messages flash de succès/erreur -->
-        <?php if ($status === 'success'): ?>
-            <div class="alert alert-success alert-dismissible fade show mb-5 py-3 shadow-sm" role="alert">
-                <i class="fa-solid fa-circle-check me-2"></i><?= e($message ?: __('booking_success')) ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        <?php elseif ($status === 'error'): ?>
-            <div class="alert alert-danger alert-dismissible fade show mb-5 py-3 shadow-sm" role="alert">
-                <i class="fa-solid fa-circle-exclamation me-2"></i><?= e($message ?: __('booking_error')) ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        <?php endif; ?>
 
         <div class="row justify-content-center">
             <!-- Liste des Hébergements centrée et plus large -->
@@ -250,5 +241,68 @@ function calculatePrice() {
     document.getElementById('calc_total').innerText = new Intl.NumberFormat().format(total);
 }
 </script>
+
+<!-- Modal de confirmation de réservation hébergement -->
+<?php if ($booking_success): ?>
+<div class="modal fade" id="bookingSuccessModal" tabindex="-1" aria-labelledby="bookingSuccessLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="bg-success text-white text-center py-5 px-4">
+                <div style="font-size: 4rem;">✅</div>
+                <h4 class="fw-bold mt-3 mb-1">Demande enregistrée !</h4>
+                <p class="mb-0 opacity-75">Votre réservation pour <?php echo e($booking_hotel_name); ?> a été prise en compte.</p>
+            </div>
+            <div class="modal-body text-center p-4">
+                <p class="fs-6 mb-3">
+                    Un e-mail de confirmation a été envoyé à :
+                </p>
+                <div class="alert alert-success fw-bold fs-5 mb-3">
+                    <i class="fa-solid fa-envelope me-2"></i><?php echo e($booking_email); ?>
+                </div>
+                <p class="text-muted small mb-4">
+                    Notre équipe validera la disponibilité et vous recontactera sous 24 heures avec un lien de paiement sécurisé pour confirmer votre réservation.
+                </p>
+                <button type="button" class="btn btn-success btn-lg px-5" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-check me-1"></i> Parfait !
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = new bootstrap.Modal(document.getElementById('bookingSuccessModal'));
+    modal.show();
+});
+</script>
+<?php endif; ?>
+
+<!-- Modal d'erreur -->
+<?php if ($booking_error): ?>
+<div class="modal fade" id="bookingErrorModal" tabindex="-1" aria-labelledby="bookingErrorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="bg-danger text-white text-center py-5 px-4">
+                <div style="font-size: 4rem;">❌</div>
+                <h4 class="fw-bold mt-3 mb-1">Erreur !</h4>
+            </div>
+            <div class="modal-body text-center p-4">
+                <p class="fs-6 mb-4">
+                    <?php echo e($booking_error_msg ?: __('booking_error')); ?>
+                </p>
+                <button type="button" class="btn btn-danger btn-lg px-5" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-redo me-1"></i> Réessayer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = new bootstrap.Modal(document.getElementById('bookingErrorModal'));
+    modal.show();
+});
+</script>
+<?php endif; ?>
 
 <?php require_once 'includes/footer.php'; ?>

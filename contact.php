@@ -6,12 +6,15 @@ require_once 'config/database.php';
 $page_title = __('nav_contact');
 $page_desc = __('contact_subtitle');
 
-// Récupération des retours de session
-$status = isset($_SESSION['contact_status']) ? $_SESSION['contact_status'] : null;
-$message = isset($_SESSION['contact_message']) ? $_SESSION['contact_message'] : null;
+// Variables pour les modals
+$contact_success = isset($_SESSION['contact_success']) ? $_SESSION['contact_success'] : false;
+$contact_email = isset($_SESSION['contact_email']) ? $_SESSION['contact_email'] : '';
+$contact_error = isset($_SESSION['contact_status']) && $_SESSION['contact_status'] === 'error';
+$contact_error_msg = isset($_SESSION['contact_message']) ? $_SESSION['contact_message'] : '';
 
 // Nettoyage session
 unset($_SESSION['contact_status'], $_SESSION['contact_message']);
+unset($_SESSION['contact_success'], $_SESSION['contact_email']);
 
 require_once 'includes/header.php';
 ?>
@@ -27,19 +30,6 @@ require_once 'includes/header.php';
 <!-- Section Présentation & Formulaire -->
 <section class="section-padding">
     <div class="container">
-        
-        <!-- Messages flash de succès/erreur -->
-        <?php if ($status === 'success'): ?>
-            <div class="alert alert-success alert-dismissible fade show mb-5 py-3 shadow-sm" role="alert">
-                <i class="fa-solid fa-circle-check me-2"></i><?= e($message ?: __('contact_success')) ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        <?php elseif ($status === 'error'): ?>
-            <div class="alert alert-danger alert-dismissible fade show mb-5 py-3 shadow-sm" role="alert">
-                <i class="fa-solid fa-circle-exclamation me-2"></i><?= e($message ?: __('booking_error')) ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        <?php endif; ?>
    <!-- div -->
         <div class="row g-5 align-items-stretch">
             <!-- Présentation "À propos" (Colonne Gauche) -->
@@ -107,5 +97,68 @@ require_once 'includes/header.php';
         </div>
     </div>
 </section>
+
+<!-- Modal de confirmation de message contact -->
+<?php if ($contact_success): ?>
+<div class="modal fade" id="contactSuccessModal" tabindex="-1" aria-labelledby="contactSuccessLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="bg-success text-white text-center py-5 px-4">
+                <div style="font-size: 4rem;">✅</div>
+                <h4 class="fw-bold mt-3 mb-1">Message envoyé !</h4>
+                <p class="mb-0 opacity-75">Nous avons bien reçu votre demande.</p>
+            </div>
+            <div class="modal-body text-center p-4">
+                <p class="fs-6 mb-3">
+                    Un accusé de réception a été envoyé à :
+                </p>
+                <div class="alert alert-success fw-bold fs-5 mb-3">
+                    <i class="fa-solid fa-envelope me-2"></i><?php echo e($contact_email); ?>
+                </div>
+                <p class="text-muted small mb-4">
+                    Notre équipe vous répondra sous 24 heures pour vous aider.
+                </p>
+                <button type="button" class="btn btn-success btn-lg px-5" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-check me-1"></i> Merci !
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = new bootstrap.Modal(document.getElementById('contactSuccessModal'));
+    modal.show();
+});
+</script>
+<?php endif; ?>
+
+<!-- Modal d'erreur -->
+<?php if ($contact_error): ?>
+<div class="modal fade" id="contactErrorModal" tabindex="-1" aria-labelledby="contactErrorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="bg-danger text-white text-center py-5 px-4">
+                <div style="font-size: 4rem;">❌</div>
+                <h4 class="fw-bold mt-3 mb-1">Erreur !</h4>
+            </div>
+            <div class="modal-body text-center p-4">
+                <p class="fs-6 mb-4">
+                    <?php echo e($contact_error_msg ?: __('booking_error')); ?>
+                </p>
+                <button type="button" class="btn btn-danger btn-lg px-5" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-redo me-1"></i> Réessayer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = new bootstrap.Modal(document.getElementById('contactErrorModal'));
+    modal.show();
+});
+</script>
+<?php endif; ?>
 
 <?php require_once 'includes/footer.php'; ?>

@@ -36,28 +36,16 @@ $page_desc = db_trans($lieu, 'description_courte');
 
 require_once 'includes/header.php';
 
-// Récupération des retours de session pour la planification
-$plan_status = isset($_SESSION['plan_status']) ? $_SESSION['plan_status'] : null;
-$plan_message = isset($_SESSION['plan_message']) ? $_SESSION['plan_message'] : null;
-unset($_SESSION['plan_status'], $_SESSION['plan_message']);
-?>
+// Variables pour les modals
+$visit_success = isset($_SESSION['visit_success']) ? $_SESSION['visit_success'] : false;
+$visit_email = isset($_SESSION['visit_email']) ? $_SESSION['visit_email'] : '';
+$visit_error = isset($_SESSION['plan_status']) && $_SESSION['plan_status'] === 'error';
+$visit_error_msg = isset($_SESSION['plan_message']) ? $_SESSION['plan_message'] : '';
+$visit_place_name = db_trans($lieu, 'nom');
 
-<!-- Messages flash de succès/erreur -->
-<?php if ($plan_status === 'success'): ?>
-    <div class="container mt-4">
-        <div class="alert alert-success alert-dismissible fade show py-3 shadow-sm" role="alert">
-            <i class="fa-solid fa-circle-check me-2"></i><?= e($plan_message) ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    </div>
-<?php elseif ($plan_status === 'error'): ?>
-    <div class="container mt-4">
-        <div class="alert alert-danger alert-dismissible fade show py-3 shadow-sm" role="alert">
-            <i class="fa-solid fa-circle-exclamation me-2"></i><?= e($plan_message) ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    </div>
-<?php endif; ?>
+unset($_SESSION['plan_status'], $_SESSION['plan_message']);
+unset($_SESSION['visit_success'], $_SESSION['visit_email'], $_SESSION['visit_place_id']);
+?>
 
 <!-- En-tête de la page de détails -->
 <section class="lieu-detail-header">
@@ -191,5 +179,68 @@ unset($_SESSION['plan_status'], $_SESSION['plan_message']);
         </div>
     </div>
 </section>
+
+<!-- Modal de confirmation de demande de visite -->
+<?php if ($visit_success): ?>
+<div class="modal fade" id="visitSuccessModal" tabindex="-1" aria-labelledby="visitSuccessLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="bg-success text-white text-center py-5 px-4">
+                <div style="font-size: 4rem;">✅</div>
+                <h4 class="fw-bold mt-3 mb-1">Demande enregistrée !</h4>
+                <p class="mb-0 opacity-75">Votre visite à <?php echo e($visit_place_name); ?> a été planifiée.</p>
+            </div>
+            <div class="modal-body text-center p-4">
+                <p class="fs-6 mb-3">
+                    Un accusé de réception a été envoyé à :
+                </p>
+                <div class="alert alert-success fw-bold fs-5 mb-3">
+                    <i class="fa-solid fa-envelope me-2"></i><?php echo e($visit_email); ?>
+                </div>
+                <p class="text-muted small mb-4">
+                    Notre équipe vous contactera sous 24 heures avec une proposition complète (guide, hébergement et activités).
+                </p>
+                <button type="button" class="btn btn-success btn-lg px-5" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-check me-1"></i> Super !
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = new bootstrap.Modal(document.getElementById('visitSuccessModal'));
+    modal.show();
+});
+</script>
+<?php endif; ?>
+
+<!-- Modal d'erreur -->
+<?php if ($visit_error): ?>
+<div class="modal fade" id="visitErrorModal" tabindex="-1" aria-labelledby="visitErrorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="bg-danger text-white text-center py-5 px-4">
+                <div style="font-size: 4rem;">❌</div>
+                <h4 class="fw-bold mt-3 mb-1">Erreur !</h4>
+            </div>
+            <div class="modal-body text-center p-4">
+                <p class="fs-6 mb-4">
+                    <?php echo e($visit_error_msg); ?>
+                </p>
+                <button type="button" class="btn btn-danger btn-lg px-5" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-redo me-1"></i> Réessayer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = new bootstrap.Modal(document.getElementById('visitErrorModal'));
+    modal.show();
+});
+</script>
+<?php endif; ?>
 
 <?php require_once 'includes/footer.php'; ?>

@@ -104,6 +104,10 @@ try {
 
     $_SESSION['booking_status'] = 'success';
     $_SESSION['booking_message'] = 'Votre demande de réservation a bien été enregistrée. Un retour vous sera fait par e-mail sous 24 heures.';
+    // Sauvegarder les variables pour le modal de succès
+    $_SESSION['hotel_booking_success'] = true;
+    $_SESSION['hotel_booking_email'] = $email_client;
+    $_SESSION['hotel_booking_name'] = $hotel['nom'];
 
 } catch (PDOException $e) {
     $_SESSION['booking_status'] = 'error';

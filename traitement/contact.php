@@ -65,6 +65,9 @@ try {
 
     $_SESSION['contact_status'] = 'success';
     $_SESSION['contact_message'] = 'Votre message a bien été transmis. Nous vous répondrons rapidement.';
+    // Variables pour le modal de succès
+    $_SESSION['contact_success'] = true;
+    $_SESSION['contact_email'] = $email;
 
 } catch (PDOException $e) {
     $_SESSION['contact_status'] = 'error';

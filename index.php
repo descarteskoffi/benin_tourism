@@ -226,14 +226,9 @@ require_once 'includes/header.php';
                                 <p class="card-text-desc flex-grow-1">
                                     <?= e(db_trans($lieu, 'description_courte')) ?>
                                 </p>
-                                <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <div class="d-flex justify-content-center align-items-center mt-auto">
                                     <a href="lieu.php?id=<?= $lieu['id'] ?>" class="btn btn-custom btn-primary-custom">
                                         <?= __('btn_explore') ?>
-                                    </a>
-                                    <?php $url_gps = "https://www.google.com/maps/dir/?api=1&destination="
-                                        . $lieu['latitude'] . ',' . $lieu['longitude']; ?>
-                                    <a href="<?= e($url_gps) ?>" target="_blank" class="btn btn-custom btn-gps">
-                                        <i class="fa-solid fa-compass me-1"></i> <?= __('gps_btn') ?>
                                     </a>
                                 </div>
                             </div>

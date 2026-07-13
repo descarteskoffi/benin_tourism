@@ -68,9 +68,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_search'])) {
     }
 }
 
-// Nettoyage session status
-$status  = isset($_SESSION['guide_status'])  ? $_SESSION['guide_status']  : null;
-$message = isset($_SESSION['guide_message']) ? $_SESSION['guide_message'] : null;
+// Variables pour les modals
+$booking_success = isset($_SESSION['guide_booking_success']) ? $_SESSION['guide_booking_success'] : false;
+$booking_email   = isset($_SESSION['guide_booking_email'])   ? $_SESSION['guide_booking_email']   : '';
+$booking_error = isset($_SESSION['guide_status']) && $_SESSION['guide_status'] === 'error';
+$booking_error_msg = isset($_SESSION['guide_message']) ? $_SESSION['guide_message'] : '';
+unset($_SESSION['guide_booking_success'], $_SESSION['guide_booking_email']);
 unset($_SESSION['guide_status'], $_SESSION['guide_message']);
 
 require_once 'includes/header.php';
@@ -86,13 +89,6 @@ require_once 'includes/header.php';
 
 <section class="section-padding">
     <div class="container">
-        
-        <?php if ($status === 'error'): ?>
-            <div class="alert alert-danger alert-dismissible fade show mb-5 py-3 shadow-sm" role="alert">
-                <i class="fa-solid fa-circle-exclamation me-2"></i><?= e($message) ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        <?php endif; ?>
 
         <!-- ÉTAPE 1 : MOTEUR DE RECHERCHE -->
         <?php if (!$search_performed): ?>
@@ -283,6 +279,34 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const modal = new bootstrap.Modal(document.getElementById('bookingSuccessModal'));
+    modal.show();
+});
+</script>
+<?php endif; ?>
+
+<!-- Modal d'erreur -->
+<?php if ($booking_error): ?>
+<div class="modal fade" id="bookingErrorModal" tabindex="-1" aria-labelledby="bookingErrorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="bg-danger text-white text-center py-5 px-4">
+                <div style="font-size: 4rem;">❌</div>
+                <h4 class="fw-bold mt-3 mb-1">Erreur !</h4>
+            </div>
+            <div class="modal-body text-center p-4">
+                <p class="fs-6 mb-4">
+                    <?php echo e($booking_error_msg); ?>
+                </p>
+                <button type="button" class="btn btn-danger btn-lg px-5" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-redo me-1"></i> Réessayer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = new bootstrap.Modal(document.getElementById('bookingErrorModal'));
     modal.show();
 });
 </script>
