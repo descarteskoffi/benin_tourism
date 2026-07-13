@@ -2,7 +2,7 @@
 require_once 'includes/fonctions.php';
 require_once 'config/database.php';
 
-// SEO Metas
+// SEO Metas 
 $page_title = __('nav_contact');
 $page_desc = __('contact_subtitle');
 
@@ -40,7 +40,7 @@ require_once 'includes/header.php';
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
-
+   <!-- div -->
         <div class="row g-5 align-items-stretch">
             <!-- Présentation "À propos" (Colonne Gauche) -->
             <div class="col-lg-6 d-flex flex-column justify-content-between">
