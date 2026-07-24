@@ -84,7 +84,7 @@ $page_desc = isset($page_desc) ? $page_desc : __('hero_subtitle');
 </head>
 <body>
 
-    <!-- Barre de Navigation -->
+    <!-- Barre de Navigation mise a jour-->
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
             <a class="navbar-brand" href="index.php">
