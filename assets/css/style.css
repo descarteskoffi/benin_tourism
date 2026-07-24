@@ -89,7 +89,7 @@ h4, .h4 {
    NAVBAR (GLASSMORPHISM)
    ============================================================================ */
 .navbar {
-    background: rgba(11, 59, 44, 0.92);
+    background: rgba(5, 20, 16, 0.95); /* Obsidian green (harmonized with footer) */
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);

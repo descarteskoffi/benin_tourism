@@ -10,4 +10,7 @@ define('SMTP_USER', 'descarteskoffi2@gmail.com'); // Votre e-mail Gmail
 define('SMTP_PASS', 'zzff ierc scny vokx'); // Votre mot de passe d'application Google (16 caractères)
 define('SMTP_FROM', 'descarteskoffi2@gmail.com'); // E-mail expéditeur (le même)
 define('SMTP_FROM_NAME', 'Benin Tourisme');
-define('FEDAPAY_SANDBOX_KEY', 'pk_sandbox_k2o5dgiLVLBwr7FRYBvnwgTd');
+
+// Configuration FedaPay
+define('FEDAPAY_SANDBOX_KEY', 'pk_sandbox_k2o5dgiLVLBwr7FRYBvnwgTd'); // Clé publique pour le frontend
+define('FEDAPAY_SANDBOX_SECRET_KEY', 'sk_sandbox_VOTRE_CLE_SECRETE_ICI'); // Clé secrète pour l'API (à remplacer)

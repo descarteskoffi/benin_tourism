@@ -25,6 +25,62 @@ $page_desc = isset($page_desc) ? $page_desc : __('hero_subtitle');
     
     <!-- Custom CSS -->
     <link href="assets/css/style.css" rel="stylesheet">
+
+    <!-- ============================================================
+         STYLES NAVBAR — distincte de la Hero Section
+         ============================================================ -->
+    <style>
+    .navbar {
+        background-color: #0B3B2C; /* vert foncé, différent du #1a5c45 de la hero */
+        box-shadow: 0 2px 12px rgba(0,0,0,0.25); /* légère ombre pour marquer la limite */
+        padding-top: 14px;
+        padding-bottom: 14px;
+        z-index: 10;
+        position: relative;
+    }
+
+    .navbar-brand .brand-text {
+        color: #fff;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .navbar-brand .text-accent {
+        color: #E5A93B;
+    }
+
+    .navbar-brand .brand-icon {
+        color: #E5A93B;
+        margin-right: 8px;
+    }
+
+    .navbar .nav-link {
+        color: rgba(255,255,255,0.85);
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .navbar .nav-link:hover,
+    .navbar .nav-link.active {
+        color: #E5A93B;
+    }
+
+    .navbar .btn-admin {
+        border-color: rgba(255,255,255,0.4);
+        color: #fff;
+        font-size: 0.85rem;
+    }
+
+    .navbar .btn-admin:hover {
+        background: #E5A93B;
+        border-color: #E5A93B;
+        color: #0B3B2C;
+    }
+
+    .navbar .lang-selector .nav-link {
+        color: #fff;
+    }
+    </style>
 </head>
 <body>
 
@@ -82,3 +138,5 @@ $page_desc = isset($page_desc) ? $page_desc : __('hero_subtitle');
             </div>
         </div>
     </nav>
+</body>
+</html>

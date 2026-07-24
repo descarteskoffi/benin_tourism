@@ -35,8 +35,9 @@ require_once 'includes/header.php';
     <!-- Slides de fond en rotation -->
     <div class="hero-carousel-bg" id="heroBg">
         <?php foreach ($carousel_images as $i => $src): ?>
-        <div class="hero-slide <?= $i === 0 ? 'active' : '' ?>"
-             style="background-image:url('<?= e($src) ?>');">
+        <div class="hero-slide <?= $i === 0 ? 'active' : '' ?>">
+            <div class="hero-slide-blur" style="background-image:url('<?= e($src) ?>');"></div>
+            <img src="<?= e($src) ?>" alt="" class="hero-slide-img">
         </div>
         <?php endforeach; ?>
         <div class="hero-overlay"></div>
@@ -54,7 +55,7 @@ require_once 'includes/header.php';
     <div class="container hero-content-wrapper">
         <div class="row align-items-center g-5">
 
-            <!-- ---- Gauche : Texte & CTA ---- -->
+            <!-- ---- Texte & CTA ---- -->
             <div class="col-lg-6 hero-text-col">
                 <span class="hero-badge">
                     <i class="fa-solid fa-star me-1"></i>
@@ -89,66 +90,6 @@ require_once 'includes/header.php';
                         <span class="stat-number">4</span>
                         <span class="stat-label">Guides certifiés</span>
                     </div>
-                </div>
-            </div>
-
-            <!-- ---- Droite : Carrousel Cinématique ---- -->
-            <div class="col-lg-6 d-none d-lg-flex justify-content-center align-items-center">
-                <div class="cine-carousel">
-
-                    <!-- Cadre principal -->
-                    <div class="cine-frame">
-
-                        <!-- Slides -->
-                        <?php foreach ($carousel_images as $i => $src): ?>
-                        <div class="cine-slide <?= $i === 0 ? 'active' : '' ?>" id="cineSlide<?= $i ?>">
-                            <img src="<?= e($src) ?>" alt="Bénin Tourisme - Slide <?= $i+1 ?>">
-                        </div>
-                        <?php endforeach; ?>
-
-                        <!-- Overlay gradient bas -->
-                        <div class="cine-gradient"></div>
-
-                        <!-- Info bas -->
-                        <div class="cine-info">
-                            <div class="cine-location">
-                                <i class="fa-solid fa-location-dot"></i>
-                                <span id="cineLabel">Bénin, Afrique de l'Ouest</span>
-                            </div>
-                            <div class="cine-counter">
-                                <span id="cineCurrent">01</span>
-                                <span class="cine-sep">/</span>
-                                <span class="cine-total"><?= str_pad(count($carousel_images), 2, '0', STR_PAD_LEFT) ?></span>
-                            </div>
-                        </div>
-
-                        <!-- Barre de progression -->
-                        <div class="cine-progress">
-                            <div class="cine-progress-bar" id="cineProgressBar"></div>
-                        </div>
-
-                        <!-- Flèches de navigation -->
-                        <button class="cine-arrow cine-prev" onclick="cinePrev()" aria-label="Précédent">
-                            <i class="fa-solid fa-chevron-left"></i>
-                        </button>
-                        <button class="cine-arrow cine-next" onclick="cineNext()" aria-label="Suivant">
-                            <i class="fa-solid fa-chevron-right"></i>
-                        </button>
-
-                        <!-- Pastille coin -->
-                        <div class="cine-badge-corner">
-                            <i class="fa-solid fa-camera"></i> Galerie
-                        </div>
-                    </div>
-
-                    <!-- Labels / dots sous le cadre -->
-                    <div class="cine-dots">
-                        <?php foreach ($carousel_images as $i => $src): ?>
-                        <button class="cine-dot <?= $i === 0 ? 'active' : '' ?>"
-                                onclick="cineGo(<?= $i ?>)" aria-label="Slide <?= $i+1 ?>"></button>
-                        <?php endforeach; ?>
-                    </div>
-
                 </div>
             </div>
 
@@ -281,28 +222,82 @@ require_once 'includes/header.php';
 }
 .hero-carousel-bg { position: absolute; inset: 0; z-index: 0; }
 
+/* ---------------------------------------------------------------
+   MODIFIÉ : le slide contient désormais 2 couches
+   1) .hero-slide-blur  -> fond flou (cover) qui comble les bords
+   2) .hero-slide-img   -> l'image réelle, jamais recadrée (contain)
+   --------------------------------------------------------------- */
 .hero-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: scale(1.06);
+    transition: opacity 1.4s ease, transform 7s ease;
+    overflow: hidden;
+}
+.hero-slide.active { opacity: 1; transform: scale(1); }
+
+.hero-slide-blur {
     position: absolute;
     inset: 0;
     background-size: cover;
     background-position: center;
-    opacity: 0;
-    transform: scale(1.06);
-    transition: opacity 1.4s ease, transform 7s ease;
+    filter: blur(30px) brightness(0.55);
+    transform: scale(1.2); /* évite de voir les bords flous/transparents */
 }
-.hero-slide.active { opacity: 1; transform: scale(1); }
+
+.hero-slide-img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;   /* l'image entière est toujours visible, jamais coupée */
+    object-position: center;
+}
 
 .hero-overlay {
     position: absolute;
     inset: 0;
     background: linear-gradient(
         105deg,
-        rgba(11,59,44,0.78) 0%,
-        rgba(11,59,44,0.38) 48%,
-        rgba(11,59,44,0.10) 100%
+        rgba(11,59,44,0.55) 0%,
+        rgba(11,59,44,0.25) 48%,
+        rgba(11,59,44,0.05) 100%
     );
+    z-index: 2;
 }
-.hero-content-wrapper { position: relative; z-index: 2; padding: 140px 0 100px; }
+.hero-content-wrapper { position: relative; z-index: 3; padding: 140px 0 100px; }
+.hero-text-col { margin: 0 auto; }
+
+/* ---------------------------------------------------------------
+   DESKTOP : l'image passe à droite (toujours en fond), texte à gauche
+   --------------------------------------------------------------- */
+@media (min-width: 992px) {
+    /* Fond derrière le texte, pour la moitié gauche (vert allégé) */
+    .hero-section { background: #1a5c45; }
+
+    /* L'image occupe uniquement la moitié droite */
+    .hero-carousel-bg {
+        left: 50%;
+        width: 50%;
+        right: 0;
+    }
+
+    /* Suppression complète du dégradé sur desktop */
+    .hero-overlay {
+        display: none;
+    }
+
+    /* Texte cantonné à la moitié gauche, non centré */
+    .hero-text-col { margin: 0; }
+
+    /* Affichage complet de l'image (sans rognage) */
+    .hero-slide-blur { display: none; }
+    .hero-slide-img {
+        object-fit: contain;
+        object-position: center;
+    }
+}
 
 /* Badge */
 .hero-badge {
@@ -373,176 +368,6 @@ require_once 'includes/header.php';
 .stat-label  { font-size: 0.75rem; color: rgba(255,255,255,0.6); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
 .hero-stat-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.15); flex-shrink: 0; }
 
-/* ---- Carrousel Cinématique (droite) ---- */
-.cine-carousel {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 18px;
-}
-
-.cine-frame {
-    position: relative;
-    width: 460px;
-    height: 580px;
-    border-radius: 24px;
-    overflow: hidden;
-    box-shadow:
-        0 0 0 1px rgba(255,255,255,0.08),
-        0 40px 100px rgba(0,0,0,0.55),
-        0 0 60px rgba(229,169,59,0.08);
-    cursor: pointer;
-    perspective: 1000px;
-    background: #0a0a0a;
-}
-
-/* Slides */
-.cine-slide {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    transition: opacity 1s ease, transform 0.9s cubic-bezier(0.25,0.8,0.25,1);
-    transform: scale(1.04);
-}
-.cine-slide.active {
-    opacity: 1;
-    transform: scale(1);
-}
-.cine-slide img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-/* Gradient bas */
-.cine-gradient {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 55%;
-    background: linear-gradient(0deg, rgba(5,20,12,0.92) 0%, rgba(5,20,12,0.40) 60%, transparent 100%);
-    z-index: 2;
-    pointer-events: none;
-}
-
-/* Infos bas */
-.cine-info {
-    position: absolute;
-    bottom: 52px; left: 24px; right: 24px;
-    z-index: 3;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-}
-.cine-location {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #fff;
-    font-size: 0.88rem;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-}
-.cine-location i { color: #E5A93B; font-size: 0.9rem; }
-
-.cine-counter {
-    display: flex;
-    align-items: baseline;
-    gap: 3px;
-    font-family: 'Outfit', sans-serif;
-}
-#cineCurrent {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #E5A93B;
-    line-height: 1;
-}
-.cine-sep {
-    font-size: 1rem;
-    color: rgba(255,255,255,0.4);
-    margin: 0 2px;
-}
-.cine-total {
-    font-size: 0.9rem;
-    color: rgba(255,255,255,0.55);
-    font-weight: 600;
-}
-
-/* Barre de progression */
-.cine-progress {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 4px;
-    background: rgba(255,255,255,0.12);
-    z-index: 4;
-}
-.cine-progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #E5A93B, #f5c842);
-    width: 0%;
-    transition: width 0.1s linear;
-    border-radius: 0 2px 2px 0;
-}
-
-/* Flèches */
-.cine-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 5;
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(255,255,255,0.12);
-    backdrop-filter: blur(8px);
-    color: #fff;
-    font-size: 0.9rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    opacity: 0;
-}
-.cine-frame:hover .cine-arrow { opacity: 1; }
-.cine-arrow:hover { background: #E5A93B; color: #0B3B2C; transform: translateY(-50%) scale(1.1); }
-.cine-prev { left: 14px; }
-.cine-next { right: 14px; }
-
-/* Pastille coin */
-.cine-badge-corner {
-    position: absolute;
-    top: 18px; left: 18px;
-    z-index: 5;
-    background: rgba(229,169,59,0.18);
-    border: 1px solid rgba(229,169,59,0.45);
-    color: #E5A93B;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    padding: 6px 13px;
-    border-radius: 20px;
-    backdrop-filter: blur(8px);
-}
-
-/* Dots sous le cadre */
-.cine-dots {
-    display: flex;
-    gap: 8px;
-    margin-top: 4px;
-}
-.cine-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(255,255,255,0.25);
-    cursor: pointer;
-    transition: all 0.35s ease;
-    padding: 0;
-}
-.cine-dot.active { background: #E5A93B; width: 26px; border-radius: 4px; }
-
 /* Dots Hero fond (ancien) */
 .hero-dots { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 5; }
 .hero-dot {
@@ -594,62 +419,6 @@ require_once 'includes/header.php';
     timer = setInterval(function() { bgActivate((current + 1) % total); }, 5500);
 })();
 
-// ---- Carrousel Cinématique (droite) ----
-(function () {
-    var cineSlides = document.querySelectorAll('.cine-slide');
-    var cineDots   = document.querySelectorAll('.cine-dot');
-    var cineBar    = document.getElementById('cineProgressBar');
-    var cineNum    = document.getElementById('cineCurrent');
-    var cineLabel  = document.getElementById('cineLabel');
-    var total      = cineSlides.length;
-    var current    = 0;
-    var timer      = null;
-    var progTimer  = null;
-    var DURATION   = 5500;   // ms par slide
-    var elapsed    = 0;
-    var TICK       = 50;     // ms par tick barre
-
-    var labels = [
-        'Bénin, Afrique de l\'Ouest',
-        'Découvrez nos sites'
-    ];
-
-    function startProgress() {
-        elapsed = 0;
-        clearInterval(progTimer);
-        progTimer = setInterval(function() {
-            elapsed += TICK;
-            var pct = Math.min((elapsed / DURATION) * 100, 100);
-            if (cineBar) cineBar.style.width = pct + '%';
-        }, TICK);
-    }
-
-    function cineActivate(n) {
-        cineSlides[current].classList.remove('active');
-        cineDots[current].classList.remove('active');
-
-        current = ((n % total) + total) % total;
-
-        cineSlides[current].classList.add('active');
-        cineDots[current].classList.add('active');
-        if (cineNum)   cineNum.textContent   = String(current + 1).padStart(2, '0');
-        if (cineLabel) cineLabel.textContent = labels[current] || 'Bénin';
-
-        startProgress();
-    }
-
-    function startTimer() {
-        clearInterval(timer);
-        timer = setInterval(function() { cineActivate(current + 1); }, DURATION);
-    }
-
-    window.cineGo   = function(n) { clearInterval(timer); cineActivate(n); startTimer(); };
-    window.cineNext = function()  { clearInterval(timer); cineActivate(current + 1); startTimer(); };
-    window.cinePrev = function()  { clearInterval(timer); cineActivate(current - 1); startTimer(); };
-
-    startProgress();
-    startTimer();
-})();
 </script>
 
 <?php require_once 'includes/footer.php'; ?>

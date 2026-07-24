@@ -346,35 +346,16 @@ require_once 'includes/header.php';
                                 </li>
                             </ul>
 
-                            <!-- FedaPay Checkout Script -->
-                            <script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
-                            <button id="pay-btn" class="btn btn-success btn-lg w-100 py-3 mt-3">
-                                <i class="fa-solid fa-credit-card me-2"></i>Confirmer & Payer avec FedaPay
-                            </button>
-
-                            <script>
-                                FedaPay.init('#pay-btn', {
-                                    public_key: '<?= htmlspecialchars($fedapay_key) ?>',
-                                    transaction: {
-                                        amount: <?= max(1, (int)$prix_total) ?>,
-                                        description: 'Paiement Service Bénin Tourisme (<?= $type_demande ?>)'
-                                    },
-                                    customer: {
-                                        email: '<?= addslashes($demande["email_client"]) ?>',
-                                        lastname: '<?= addslashes($demande["nom_client"]) ?>',
-                                        phone_number: {
-                                            number: '<?= preg_replace("/[^0-9]/", "", $demande["telephone_client"]) ?>',
-                                            country: 'BJ'
-                                        }
-                                    },
-                                    on_success: function(response) {
-                                        window.location.href = '<?= $callback_base ?>/traitement/retour_paiement.php?token=<?= urlencode($token) ?>&type=<?= $type_demande ?>&transaction_id=' + response.transaction.id;
-                                    },
-                                    on_error: function(error) {
-                                        alert('Erreur lors du paiement : ' + error);
-                                    }
-                                });
-                            </script>
+                            <!-- FedaPay - Redirection directe -->
+                            <form id="payment-form" method="POST" action="traitement/creer_paiement.php">
+                                <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+                                <input type="hidden" name="type" value="<?= htmlspecialchars($type_demande) ?>">
+                                <input type="hidden" name="montant" value="<?= (int)$prix_total ?>">
+                                <input type="hidden" name="description" value="Paiement Service Bénin Tourisme (<?= htmlspecialchars($type_demande) ?>)">
+                                <button type="submit" class="btn btn-success btn-lg w-100 py-3 mt-3">
+                                    <i class="fa-solid fa-credit-card me-2"></i>Confirmer & Payer avec FedaPay
+                                </button>
+                            </form>
 
                             <p class="text-center text-muted small mt-3 mb-0"><i class="fa-solid fa-lock me-1"></i>Sécurisé par FedaPay Sandbox</p>
                         </div>

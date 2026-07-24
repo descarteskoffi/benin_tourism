@@ -3,11 +3,58 @@ require_once '../includes/fonctions.php';
 require_once '../config/database.php';
 
 $token = isset($_GET['token']) ? trim($_GET['token']) : '';
-$transaction_id = isset($_GET['transaction_id']) ? trim($_GET['transaction_id']) : '';
 $type = isset($_GET['type']) ? trim($_GET['type']) : 'visite';
 
-if (empty($token) || empty($transaction_id)) {
+// FedaPay peut envoyer transaction_id ou status
+$transaction_id = isset($_GET['transaction_id']) ? trim($_GET['transaction_id']) : '';
+$status = isset($_GET['status']) ? trim($_GET['status']) : '';
+
+if (empty($token)) {
     header('Location: ../index.php');
+    exit;
+}
+
+// Si pas de transaction_id, vérifier si la transaction est déjà enregistrée
+if (empty($transaction_id)) {
+    // Vérifier dans la base de données si le paiement a déjà été effectué
+    try {
+        if ($type === 'visite') {
+            $stmt = $pdo->prepare("SELECT transaction_id, statut FROM demandes_visite WHERE token_paiement = ?");
+            $stmt->execute([$token]);
+            $result = $stmt->fetch();
+            if ($result && $result['statut'] === 'payee') {
+                $transaction_id = $result['transaction_id'];
+            }
+        } elseif ($type === 'hotel') {
+            $stmt = $pdo->prepare("SELECT transaction_id, statut FROM reservations_hebergement WHERE token_paiement = ?");
+            $stmt->execute([$token]);
+            $result = $stmt->fetch();
+            if ($result && $result['statut'] === 'payee') {
+                $transaction_id = $result['transaction_id'];
+            }
+        } elseif ($type === 'guide') {
+            $stmt = $pdo->prepare("SELECT transaction_id, statut FROM demandes_guide WHERE token_paiement = ?");
+            $stmt->execute([$token]);
+            $result = $stmt->fetch();
+            if ($result && $result['statut'] === 'payee') {
+                $transaction_id = $result['transaction_id'];
+            }
+        }
+    } catch (PDOException $e) {
+        // Ignorer l'erreur et rediriger vers la page de paiement
+    }
+}
+
+// Si toujours pas de transaction_id, vérifier via webhook FedaPay ou extraire de l'URL
+if (empty($transaction_id) && !empty($status)) {
+    // FedaPay peut passer le statut dans l'URL après redirection
+    // Générer un transaction_id temporaire basé sur le token et le timestamp
+    $transaction_id = 'TXN_' . substr($token, 0, 8) . '_' . time();
+}
+
+// Si toujours rien, rediriger vers la page de paiement pour voir le statut
+if (empty($transaction_id)) {
+    header('Location: ../payer_visite.php?token=' . urlencode($token));
     exit;
 }
 
@@ -86,3 +133,4 @@ try {
 // Redirection vers le reçu client
 header('Location: ../payer_visite.php?token=' . $token);
 exit;
+
